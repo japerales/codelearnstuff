@@ -1,0 +1,16 @@
+Allow message senders to suggest a delay (in time or frame count) before a message is delivered to its listeners.
+Allow message listeners to define a priority for how urgently it should receive messages compared to other listeners waiting for the same message type. This is a means for a listener to skip to the front of the queue if it was registered later than other listeners.
+Implement some safety checks to handle situations where a listener gets added to the list of message listeners for a particular message while a message of that type is still being processed. Currently, C# will throw EnumerationException at us since the delegate list will be changed by AttachListener(), while it is still being iterated through in TriggerEvent().
+
+
+
+El sistema no soporta bien determinados comportamientos nested en los que se implica la creación de objetos dandose las siguientes circunstancias:
+- Creación de un objeto que contiene otro listener.
+- El listener es nuevo: no está registrado.
+- En el mismo método que se crea el objeto se encola un mensaje y el nuevo objeto es el primer listener.
+
+Con el sistema de delay se puede solucionar...
+
+El resultado es que este listener no se ejecutará.
+
+De todas formas es buena praxis poolear los objetos antes de empezar.
